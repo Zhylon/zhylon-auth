@@ -28,5 +28,12 @@
         "psr-4": {
             "TobyMaxham\\ZhylonAuth\\": "src/"
         }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TobyMaxham\\ZhylonAuth\\Providers\\ZhylonAuthServiceProvider"
+            ]
+        }
     }
 }
