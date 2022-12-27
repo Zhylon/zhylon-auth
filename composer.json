@@ -1,0 +1,32 @@
+{
+    "name": "tobymaxham/zhylon-auth",
+    "description": "Zhylon OAuth2 Provider for Laravel Socialite",
+    "license": "MIT",
+    "keywords": [
+        "zhylon",
+        "laravel",
+        "oauth",
+        "provider",
+        "socialite"
+    ],
+    "authors": [
+        {
+            "name": "TobyMaxham",
+            "email": "git@maxham.de"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/tobymaxham/zhylon-auth/issues",
+        "source": "https://github.com/tobymaxham/zhylon-auth"
+    },
+    "require": {
+        "php": "^8.0",
+        "ext-json": "*",
+        "laravel/socialite": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "TobyMaxham\\ZhylonAuth\\": "src/"
+        }
+    }
+}
