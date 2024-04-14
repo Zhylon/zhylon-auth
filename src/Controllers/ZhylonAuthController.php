@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
+use TobyMaxham\ZhylonAuth\Exceptions\ZhylonException;
 
 class ZhylonAuthController
 {
@@ -16,7 +17,16 @@ class ZhylonAuthController
 
     public function callback()
     {
-        $zhylonUser = Socialite::driver('zhylon')->user();
+        if (!request()->has('code')) {
+            throw new ZhylonException('You must authorize the application to access your Zhylon account.');
+        }
+
+        try {
+            $driver = Socialite::driver('zhylon');
+            $zhylonUser = $driver->user();
+        } catch (\Exception|\TypeError $e) {
+            throw new ZhylonException('Error while fetching user data from Zhylon.');
+        }
 
         /** @var User $user */
         $user = User::where('zhylon_id', $zhylonUser->id)
