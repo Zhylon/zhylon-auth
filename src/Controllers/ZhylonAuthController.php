@@ -42,7 +42,11 @@ class ZhylonAuthController
         ];
 
         if ($user) {
-            $user->update($fields);
+            if($this->handleExistingUser($user, $fields)) {
+                return redirect('/login')->withErrors(
+                    __('auth.oauth.we are unable to login you in because you already have an account with this email')
+                );
+            }
         } else {
             $fields['password'] = Str::random(32);
             $user = User::create($fields);
@@ -54,13 +58,28 @@ class ZhylonAuthController
         return redirect(config('zhylon-auth.service.home'));
     }
 
-    private function createTeam($user)
+    private function handleExistingUser(User $user, array $fields): bool
+    {
+        if (!empty($user->zhylon_id)) {
+            return false;
+        }
+
+        $user->update($fields);
+
+        return true;
+    }
+
+    private function createTeam($user): void
     {
         if (!class_exists('\Laravel\Jetstream\Jetstream') || !class_exists('\App\Models\Team')) {
             return;
         }
 
         if (!\Laravel\Jetstream\Jetstream::hasTeamFeatures()) {
+            return;
+        }
+
+        if ($user->personalTeam()) {
             return;
         }
 
