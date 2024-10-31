@@ -24,49 +24,58 @@ class ZhylonAuthController
         try {
             $driver = Socialite::driver('zhylon');
             $zhylonUser = $driver->user();
+
+            /** @var User $user */
+            $user = User::where('zhylon_id', $zhylonUser->id)
+                ->orWhere('email', $zhylonUser->email)
+                ->first();
+
+            if($user) {
+                return $this->handleExistingUser($user, $zhylonUser);
+            }
+
+
+            $createUser = User::create([
+                'zhylon_id'            => $zhylonUser->id,
+                'name'                 => $zhylonUser->name,
+                'email'                => $zhylonUser->email,
+                'zhylon_token'         => $zhylonUser->token,
+                'zhylon_refresh_token' => $zhylonUser->refreshToken,
+            ]);
+
+            $this->createTeam($createUser);
+
+            return $this->loginAndRedirect($createUser);
+
         } catch (\Exception|\TypeError $e) {
             throw new ZhylonException('Error while fetching user data from Zhylon.');
         }
+    }
 
-        /** @var User $user */
-        $user = User::where('zhylon_id', $zhylonUser->id)
-            ->orWhere('email', $zhylonUser->email)
-            ->first();
-
-        $fields = [
-            'zhylon_id'            => $zhylonUser->id,
-            'name'                 => $zhylonUser->name,
-            'email'                => $zhylonUser->email,
-            'zhylon_token'         => $zhylonUser->token,
-            'zhylon_refresh_token' => $zhylonUser->refreshToken,
-        ];
-
-        if ($user) {
-            if($this->handleExistingUser($user, $fields)) {
-                return redirect('/login')->withErrors(
-                    __('auth.oauth.we are unable to login you in because you already have an account with this email')
-                );
-            }
-        } else {
-            $fields['password'] = Str::random(32);
-            $user = User::create($fields);
+    private function handleExistingUser(User $user, $zhylonUser)
+    {
+        if (!empty($user->zhylon_id)) {
+            return redirect('/login')->withErrors(
+                __('auth.oauth.we are unable to login you in because you already have an account with this email')
+            );
         }
 
+        $user->update([
+            'zhylon_id'            => $zhylonUser->id,
+            'zhylon_token'         => $zhylonUser->token,
+            'zhylon_refresh_token' => $zhylonUser->refreshToken,
+        ]);
+
         $this->createTeam($user);
+
+        return $this->loginAndRedirect($user);
+    }
+
+    private function loginAndRedirect(User $user)
+    {
         Auth::login($user);
 
         return redirect(config('zhylon-auth.service.home'));
-    }
-
-    private function handleExistingUser(User $user, array $fields): bool
-    {
-        if (!empty($user->zhylon_id)) {
-            return false;
-        }
-
-        $user->update($fields);
-
-        return true;
     }
 
     private function createTeam($user): void
