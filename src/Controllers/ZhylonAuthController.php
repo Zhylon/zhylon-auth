@@ -3,7 +3,6 @@
 namespace TobyMaxham\ZhylonAuth\Controllers;
 
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use TobyMaxham\ZhylonAuth\Exceptions\ZhylonException;
@@ -17,7 +16,7 @@ class ZhylonAuthController
 
     public function callback()
     {
-        if (!request()->has('code')) {
+        if (! request()->has('code')) {
             throw new ZhylonException('You must authorize the application to access your Zhylon account.');
         }
 
@@ -30,10 +29,9 @@ class ZhylonAuthController
                 ->orWhere('email', $zhylonUser->email)
                 ->first();
 
-            if($user) {
+            if ($user) {
                 return $this->handleExistingUser($user, $zhylonUser);
             }
-
 
             $createUser = User::create([
                 'zhylon_id'            => $zhylonUser->id,
@@ -46,7 +44,6 @@ class ZhylonAuthController
             $this->createTeam($createUser);
 
             return $this->loginAndRedirect($createUser);
-
         } catch (\Exception|\TypeError $e) {
             throw new ZhylonException('Error while fetching user data from Zhylon.');
         }
@@ -54,7 +51,7 @@ class ZhylonAuthController
 
     private function handleExistingUser(User $user, $zhylonUser)
     {
-        if (!empty($user->zhylon_id)) {
+        if (! empty($user->zhylon_id)) {
             return redirect('/login')->withErrors(
                 __('auth.oauth.we are unable to login you in because you already have an account with this email')
             );
@@ -80,11 +77,11 @@ class ZhylonAuthController
 
     private function createTeam($user): void
     {
-        if (!class_exists('\Laravel\Jetstream\Jetstream') || !class_exists('\App\Models\Team')) {
+        if (! class_exists('\Laravel\Jetstream\Jetstream') || ! class_exists('\App\Models\Team')) {
             return;
         }
 
-        if (!\Laravel\Jetstream\Jetstream::hasTeamFeatures()) {
+        if (! \Laravel\Jetstream\Jetstream::hasTeamFeatures()) {
             return;
         }
 

@@ -2,9 +2,9 @@
 
 namespace TobyMaxham\ZhylonAuth\Providers;
 
-use Laravel\Socialite\Two\User;
 use Illuminate\Support\Facades\Http;
 use Laravel\Socialite\Two\AbstractProvider;
+use Laravel\Socialite\Two\User;
 
 class SocialiteZhylonProvider extends AbstractProvider
 {
@@ -61,6 +61,5 @@ class SocialiteZhylonProvider extends AbstractProvider
             'nickname'       => $user['name'],
             'email_verified' => $user['email_verified'],
         ]);
-
     }
 }

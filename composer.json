@@ -35,5 +35,8 @@
                 "TobyMaxham\\ZhylonAuth\\Providers\\ZhylonAuthServiceProvider"
             ]
         }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.64"
     }
 }
