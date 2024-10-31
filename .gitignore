@@ -25,6 +25,7 @@ _ide_helper_models.php
 /.vscode
 
 # Misc
+.php-cs-fixer.cache
 phpunit.xml
 phpstan.neon
 testbench.yaml
