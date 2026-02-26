@@ -8,5 +8,6 @@ return [
         'site_path'        => env('ZHYLON_AUTH_SITE_PATH', '/auth/zhylon'),
         'base_uri'         => env('ZHYLON_AUTH_BASE_URI', 'https://id.zhylon.net'),
         'home'             => env('ZHYLON_AUTH_HOME', '/dashboard'),
+        'create_team'      => env('ZHYLON_AUTH_CREATE_TEAM', true),
     ],
 ];
