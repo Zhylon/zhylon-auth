@@ -7,7 +7,7 @@ To register for the service visit [https://id.zhylon.net](https://id.zhylon.net)
 ## Composer install package
 
 ```bash
-composer require tobymaxham/zhylon-auth
+composer require zhylon/zhylon-auth
 ```
 
 ## Prepare your User model

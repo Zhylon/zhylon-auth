@@ -1,13 +1,14 @@
 <?php
 
-namespace TobyMaxham\ZhylonAuth\Providers;
+namespace Zhylon\ZhylonAuth\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Contracts\Factory;
+use Illuminate\Contracts\Container\BindingResolutionException;
 
 class ZhylonAuthServiceProvider extends ServiceProvider
 {
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(
             __DIR__.'/../../config/zhylon-auth.php', 'zhylon-auth'
@@ -16,10 +17,8 @@ class ZhylonAuthServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap the application events.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publishes([
             __DIR__.'/../../config/zhylon-auth.php' => config_path('zhylon-auth.php'),
@@ -32,7 +31,10 @@ class ZhylonAuthServiceProvider extends ServiceProvider
         $this->loadRoutes();
     }
 
-    private function loadRoutes()
+    /**
+     * @throws BindingResolutionException
+     */
+    private function loadRoutes(): void
     {
         $this->loadRoutesFrom(realpath(__DIR__.'/../routes.php'));
 

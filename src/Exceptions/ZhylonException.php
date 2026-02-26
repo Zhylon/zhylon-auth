@@ -1,7 +1,7 @@
 <?php
 
-namespace TobyMaxham\ZhylonAuth\Exceptions;
+namespace Zhylon\ZhylonAuth\Exceptions;
 
-class ZhylonException extends \Exception
-{
-}
+use Exception;
+
+class ZhylonException extends Exception {}

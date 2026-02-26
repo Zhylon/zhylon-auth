@@ -1,19 +1,26 @@
 <?php
 
-namespace TobyMaxham\ZhylonAuth\Controllers;
+namespace Zhylon\ZhylonAuth\Controllers;
 
+use TypeError;
+use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
-use TobyMaxham\ZhylonAuth\Exceptions\ZhylonException;
+use Zhylon\ZhylonAuth\Exceptions\ZhylonException;
 
 class ZhylonAuthController
 {
     public function redirect()
     {
-        return Socialite::driver('zhylon')->redirect();
+        return Socialite::driver('zhylon')
+            ->scopes(['profile.read'])
+            ->redirect();
     }
 
+    /**
+     * @throws ZhylonException
+     */
     public function callback()
     {
         if (! request()->has('code')) {
@@ -44,7 +51,7 @@ class ZhylonAuthController
             $this->createTeam($createUser);
 
             return $this->loginAndRedirect($createUser);
-        } catch (\Exception|\TypeError $e) {
+        } catch (Exception|TypeError) {
             throw new ZhylonException('Error while fetching user data from Zhylon.');
         }
     }
@@ -77,7 +84,9 @@ class ZhylonAuthController
 
     private function createTeam($user): void
     {
-        if (! class_exists('\Laravel\Jetstream\Jetstream') || ! class_exists('\App\Models\Team')) {
+        if (! config('zhylon-auth.service.create_team')
+            || ! class_exists('\Laravel\Jetstream\Jetstream')
+            || ! class_exists('\App\Models\Team')) {
             return;
         }
 
