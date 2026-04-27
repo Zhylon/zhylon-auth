@@ -41,7 +41,13 @@ class ZhylonAuthServiceProvider extends ServiceProvider
         $socialite = $this->app->make(Factory::class);
         $socialite->extend('zhylon', function () use ($socialite) {
             $config = config('zhylon-auth.service');
-            $config['redirect'] = $config['callback_website'].$config['site_path'].'/callback';
+
+            $website = $config['callback_website'] ?? null;
+            if (empty($website)) {
+                $website = config('app.url');
+            }
+
+            $config['redirect'] = $website.$config['site_path'].'/callback';
 
             return $socialite->buildProvider(SocialiteZhylonProvider::class, $config);
         });
