@@ -5,7 +5,9 @@ namespace Zhylon\ZhylonAuth\Controllers;
 use TypeError;
 use Exception;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
 use Zhylon\ZhylonAuth\Exceptions\ZhylonException;
 
@@ -40,13 +42,7 @@ class ZhylonAuthController
                 return $this->handleExistingUser($user, $zhylonUser);
             }
 
-            $createUser = User::create([
-                'zhylon_id'            => $zhylonUser->id,
-                'name'                 => $zhylonUser->name,
-                'email'                => $zhylonUser->email,
-                'zhylon_token'         => $zhylonUser->token,
-                'zhylon_refresh_token' => $zhylonUser->refreshToken,
-            ]);
+            $createUser = User::create($this->getUserData($zhylonUser));
 
             $this->createTeam($createUser);
 
@@ -103,5 +99,23 @@ class ZhylonAuthController
             'name'          => explode(' ', $user->name, 2)[0]."'s Team",
             'personal_team' => true,
         ]));
+    }
+
+    private function getUserData(
+        \Laravel\Socialite\Contracts\User $zhylonUser
+    ): array {
+        $baseData = [
+            'zhylon_id'            => $zhylonUser->id,
+            'name'                 => $zhylonUser->name,
+            'email'                => $zhylonUser->email,
+            'zhylon_token'         => $zhylonUser->token,
+            'zhylon_refresh_token' => $zhylonUser->refreshToken,
+        ];
+
+        if (config('zhylon-auth.service.random_password', true)) {
+            $baseData['password'] = Hash::make(Str::random(32));
+        }
+
+        return $baseData;
     }
 }

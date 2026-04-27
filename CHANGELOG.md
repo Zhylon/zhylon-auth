@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v2.1] — 2026-04-27
+
+### Added
+
+- New `random_password` config option (`ZHYLON_AUTH_RANDOM_PASSWORD`, default `true`) — when enabled, a cryptographically random 32-character password is automatically hashed and assigned to newly created users.
+
+### Fixed
+
+- OAuth callback URL now falls back to `app.url` if `callback_website` is not configured or empty in `zhylon-auth.service`, preventing a broken redirect on minimal setups.
+
+---
+
 ## [v2.0] — 2026-02-26
 
 ### ⚠️ Breaking Changes
