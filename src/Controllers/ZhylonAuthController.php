@@ -54,17 +54,25 @@ class ZhylonAuthController
 
     private function handleExistingUser(User $user, $zhylonUser)
     {
-        if (! empty($user->zhylon_id)) {
+        // Zhylon ID exists, E-Mail different
+        if ((! empty($user->zhylon_id) && $user->email != $zhylonUser->email)) {
             return redirect('/login')->withErrors(
                 __('auth.oauth.we are unable to login you in because you already have an account with this email')
             );
         }
 
         $user->update([
-            'zhylon_id'            => $zhylonUser->id,
+            'zhylon_id'            => $zhylonUser->id, // update zhylon_id. May be null or a numeric value when created before 2024-10-20
             'zhylon_token'         => $zhylonUser->token,
             'zhylon_refresh_token' => $zhylonUser->refreshToken,
         ]);
+
+        // Zhylon has already confirmed ownership of this email address, so
+        // linking a Zhylon account also counts as verifying it.
+        if (method_exists($user, 'hasVerifiedEmail')
+            && ! $user->hasVerifiedEmail()) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
 
         $this->createTeam($user);
 
