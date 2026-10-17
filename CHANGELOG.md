@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v2.2] — 2026-10-15
+
+### Fixed
+
+- Users who already had a `zhylon_id` were rejected on every login with "already have an account with this email". The error is now only shown when the Zhylon ID exists but the e-mail address differs.
+
+### Added
+
+- Linking a Zhylon account to an existing user now marks the e-mail address as verified (`email_verified_at`), since Zhylon has already confirmed it.
+
+---
+
 ## [v2.1] — 2026-04-27
 
 ### Added
