@@ -52,11 +52,11 @@ authentication flow, token management, and user synchronization out of the box.
 
 ## 📦 Requirements
 
-| Dependency        | Version                   |
-|-------------------|---------------------------|
-| PHP               | `^8.3`                    |
-| Laravel           | `^10.0 \| ^11.0 \| ^12.0` |
-| Laravel Socialite | `^5.0`                    |
+| Dependency        | Version                            |
+|-------------------|------------------------------------|
+| PHP               | `^8.3`                             |
+| Laravel           | `^10.0 \| ^11.0 \| ^12.0 \| ^13.0` |
+| Laravel Socialite | `^5.24`                            |
 
 > **Note:** You need an active ZhylonID account and a registered OAuth
 > application. Sign up at [https://id.zhylon.net](https://id.zhylon.net).
