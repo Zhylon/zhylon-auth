@@ -5,6 +5,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v3.0.1] — 2026-10-17
+
+### Fixed
+
+- Login failed on Laravel 13 with "No Socialite driver was specified". Laravel 13 binds `extend()` callbacks to the Socialite manager, so the service provider's `$this` was no longer available when building the callback URL.
+
+### Changed
+
+- The test suite now runs against the latest Laravel version (Testbench `^10.0|^11.0`), so CI covers Laravel 13.
+
+---
+
 ## [v3.0] — 2026-10-17
 
 ### ⚠️ Breaking Changes

@@ -34,10 +34,14 @@ class ZhylonAuthServiceProvider extends ServiceProvider
 
     private function registerSocialiteDriver(): void
     {
-        $this->callAfterResolving(Factory::class, function (Factory $socialite) {
-            $socialite->extend('zhylon', function () use ($socialite) {
+        // Laravel 13 binds extend() callbacks to the manager, so $this inside
+        // them is not this provider. Capture the URL builder beforehand.
+        $callbackUrl = fn (): string => $this->callbackUrl();
+
+        $this->callAfterResolving(Factory::class, function (Factory $socialite) use ($callbackUrl) {
+            $socialite->extend('zhylon', function () use ($socialite, $callbackUrl) {
                 $config = config('zhylon-auth.service');
-                $config['redirect'] = $this->callbackUrl();
+                $config['redirect'] = $callbackUrl();
 
                 return $socialite->buildProvider(SocialiteZhylonProvider::class, $config);
             });
