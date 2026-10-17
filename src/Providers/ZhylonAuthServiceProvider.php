@@ -2,9 +2,9 @@
 
 namespace Zhylon\ZhylonAuth\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Socialite\Contracts\Factory;
-use Illuminate\Contracts\Container\BindingResolutionException;
 
 class ZhylonAuthServiceProvider extends ServiceProvider
 {
@@ -15,9 +15,6 @@ class ZhylonAuthServiceProvider extends ServiceProvider
         );
     }
 
-    /**
-     * Bootstrap the application events.
-     */
     public function boot(): void
     {
         $this->publishes([
@@ -28,28 +25,40 @@ class ZhylonAuthServiceProvider extends ServiceProvider
             __DIR__.'/../../migrations/' => database_path('migrations'),
         ], 'migrations');
 
-        $this->loadRoutes();
+        if (config('zhylon-auth.routes.enabled', true)) {
+            $this->loadRoutesFrom(__DIR__.'/../routes.php');
+        }
+
+        $this->registerSocialiteDriver();
+    }
+
+    private function registerSocialiteDriver(): void
+    {
+        $this->callAfterResolving(Factory::class, function (Factory $socialite) {
+            $socialite->extend('zhylon', function () use ($socialite) {
+                $config = config('zhylon-auth.service');
+                $config['redirect'] = $this->callbackUrl();
+
+                return $socialite->buildProvider(SocialiteZhylonProvider::class, $config);
+            });
+        });
     }
 
     /**
-     * @throws BindingResolutionException
+     * Build the absolute callback URL from the registered route, so it always
+     * matches the configured paths.
      */
-    private function loadRoutes(): void
+    private function callbackUrl(): string
     {
-        $this->loadRoutesFrom(realpath(__DIR__.'/../routes.php'));
+        $website = config('zhylon-auth.service.callback_website') ?: config('app.url');
 
-        $socialite = $this->app->make(Factory::class);
-        $socialite->extend('zhylon', function () use ($socialite) {
-            $config = config('zhylon-auth.service');
+        $routes = config('zhylon-auth.routes');
+        $name = ($routes['name'] ?? 'zhylon-auth.').'callback';
 
-            $website = $config['callback_website'] ?? null;
-            if (empty($website)) {
-                $website = config('app.url');
-            }
+        $path = Route::has($name)
+            ? route($name, [], false)
+            : '/'.trim($routes['prefix'] ?? '', '/').'/'.trim($routes['callback'] ?? 'callback', '/');
 
-            $config['redirect'] = $website.$config['site_path'].'/callback';
-
-            return $socialite->buildProvider(SocialiteZhylonProvider::class, $config);
-        });
+        return rtrim($website, '/').'/'.ltrim($path, '/');
     }
 }

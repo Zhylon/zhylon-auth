@@ -1,6 +1,15 @@
 <?php
 
-Illuminate\Support\Facades\Route::group(['prefix' => config('zhylon-auth.service.site_path'), 'middleware' => ['web']], function () {
-    Illuminate\Support\Facades\Route::get('/redirect', [Zhylon\ZhylonAuth\Controllers\ZhylonAuthController::class, 'redirect'])->name('zhylon-auth.redirect');
-    Illuminate\Support\Facades\Route::get('/callback', [Zhylon\ZhylonAuth\Controllers\ZhylonAuthController::class, 'callback'])->name('zhylon-auth.callback');
-});
+use Illuminate\Support\Facades\Route;
+
+$config = config('zhylon-auth.routes');
+
+Route::middleware($config['middleware'] ?? ['web'])
+    ->prefix($config['prefix'] ?? '/auth/zhylon')
+    ->name($config['name'] ?? 'zhylon-auth.')
+    ->group(function () use ($config) {
+        $controller = $config['controller'] ?? Zhylon\ZhylonAuth\Controllers\ZhylonAuthController::class;
+
+        Route::get($config['redirect'] ?? '/redirect', [$controller, 'redirect'])->name('redirect');
+        Route::get($config['callback'] ?? '/callback', [$controller, 'callback'])->name('callback');
+    });
