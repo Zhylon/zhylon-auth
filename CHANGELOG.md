@@ -5,6 +5,55 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [v3.0] — Unreleased
+
+### ⚠️ Breaking Changes
+
+**Config file restructured**
+The config is now split into `service`, `routes`, `login` and `user`. All
+environment variable names stay the same, so `.env`-only setups need no
+changes. If you published `config/zhylon-auth.php`, re-publish it:
+
+```bash
+php artisan vendor:publish --tag=config --provider="Zhylon\ZhylonAuth\Providers\ZhylonAuthServiceProvider" --force
+```
+
+| Old key                   | New key                |
+|---------------------------|------------------------|
+| `service.site_path`       | `routes.prefix`        |
+| `service.home`            | `login.home`           |
+| `service.create_team`     | `user.create_team`     |
+| `service.random_password` | `user.random_password` |
+
+**Redirect after login**
+The user is now sent to the intended URL (`redirect()->intended()`) and only
+falls back to `ZHYLON_AUTH_HOME`.
+
+**Controller**
+`ZhylonAuthController` no longer imports `App\Models\User`; it uses
+`auth.providers.users.model` (or `ZHYLON_AUTH_USER_MODEL`). Helper methods
+are now `protected`, so the controller can be extended.
+
+### Added
+
+- Configurable route paths: `ZHYLON_AUTH_REDIRECT_PATH`, `ZHYLON_AUTH_CALLBACK_PATH`, plus middleware, route name prefix and controller class in the `routes` config.
+- `ZHYLON_AUTH_ROUTES_ENABLED` to turn off the package routes and register your own.
+- "Remember me" support via `ZHYLON_AUTH_REMEMBER` (`true`, `false` or `request` for a `?remember=1` checkbox).
+- `ZHYLON_AUTH_GUARD`, `ZHYLON_AUTH_LOGIN_URL` and `ZHYLON_AUTH_USER_MODEL` options.
+- Configurable OAuth scopes (`service.scopes`).
+- `intended` query parameter on the redirect route to choose where the user lands after login. Only paths of the application or URLs on the same host are accepted (no open redirects).
+- `login_hint` query parameter on the redirect route, passed on to ZhylonID to pre-fill the login form.
+- Test suite with Pest and Orchestra Testbench (`composer test`).
+
+### Fixed
+
+- The OAuth callback URL is now built from the registered callback route, so it always matches the configured paths. Trailing slashes in `ZHYLON_AUTH_CALLBACK_WEBSITE` no longer produce a double slash.
+- Errors in the callback no longer hide the original exception (it is passed as `previous`).
+- OAuth scopes are now separated by spaces (as required by OAuth2 / Laravel Passport) instead of commas. This only affected setups requesting more than one scope.
+- README: corrected the service provider class in the `vendor:publish` command.
+
+---
+
 ## [v2.2] — 2026-10-15
 
 ### Fixed

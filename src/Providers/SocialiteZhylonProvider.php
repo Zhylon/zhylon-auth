@@ -9,6 +9,11 @@ use Illuminate\Http\Client\ConnectionException;
 
 class SocialiteZhylonProvider extends AbstractProvider
 {
+    /**
+     * OAuth2 (and Laravel Passport) expect space-separated scopes.
+     */
+    protected $scopeSeparator = ' ';
+
     public function getZhylonUrl(): string
     {
         return config('zhylon-auth.service.base_uri');
